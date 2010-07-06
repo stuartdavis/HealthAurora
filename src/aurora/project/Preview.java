@@ -87,4 +87,10 @@ class Preview extends SurfaceView implements SurfaceHolder.Callback {
 		canvas.drawText("PREVIEW", canvas.getWidth() / 2,
 				canvas.getHeight() / 2, p);
 	}
+	
+	public void restart() {
+		camera.stopPreview();
+		camera.startPreview();
+	}
+	
 }
