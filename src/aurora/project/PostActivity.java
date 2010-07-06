@@ -17,6 +17,12 @@ import org.apache.http.message.BasicNameValuePair;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.hardware.Camera;
+import android.hardware.Camera.PictureCallback;
+import android.hardware.Camera.ShutterCallback;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -24,61 +30,109 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 
 public class PostActivity extends Activity{
 	
+	private RelativeLayout picTakingScreen;
+	private FrameLayout previewholder;
+	private Button click;
 	private RelativeLayout typescreen;
+	private ImageView yourPicture;
 	private String posttext;
+	private RadioGroup radiogroup;
+	private RadioButton didThisButton;
 	private EditText entry;
+	private SeekBar healthScale;
+	private TextView healthinessText;
+	private int healthiness;
+	private Boolean didIt;
 	private Button poster;
 	private Button cancel;
 	private Button morebutton;
 	private RelativeLayout picselectscreen;
+	private Button cancelfrompicselect;
 	private Button firstpost;
 	private GridView gridview;
 	private ImageView selectedpic;
 	private RelativeLayout confirmscreen;
 	private TextView confirmedtext;
-	private ImageView confirmedpic;
+	private ImageView foodconfirmedpic;
+	private ImageView moodconfirmedpic;
+	private TextView extras;
 	private Button finalcancel;
 	private Button confirm;
 	private MoodAdapter moodAdapter;
 	private int selectedPosition;
 	private ProgressDialog dialog;
 	
+	Camera camera;
+	Preview preview;
+	private static final String TAG = "CameraDemo";
+	
 	public void onCreate(Bundle savedInstanceState){
-		try{
+		try{ 
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.post_activity_layout);
 		Log.e("log_tag", "STARTING POSTACTIVITY ONCREATE");
+
+		picTakingScreen = (RelativeLayout) findViewById(R.id.picTakingScreen);
+		previewholder = (FrameLayout) findViewById(R.id.previewholder);
+		click = (Button) findViewById(R.id.click);
 		typescreen = (RelativeLayout) findViewById(R.id.typescreen);
+		// TODO Fix typescreen turn problem
+		yourPicture = (ImageView) findViewById(R.id.yourPicture);
 		picselectscreen = (RelativeLayout) findViewById(R.id.picselectscreen);
+		cancelfrompicselect = (Button) findViewById(R.id.cancelfrompicselect);
 		confirmscreen = (RelativeLayout) findViewById(R.id.confirmscreen);
 		morebutton = (Button) findViewById(R.id.morebutton);
 		cancel = (Button) findViewById(R.id.cancel);
+		radiogroup = (RadioGroup) findViewById(R.id.radiogroup);
+		didThisButton = (RadioButton) findViewById(R.id.didThisButton);
 		entry = (EditText) findViewById(R.id.entry);
+		healthScale = (SeekBar) findViewById(R.id.healthScale);
+		healthinessText = (TextView) findViewById(R.id.healthinessText);
         poster = (Button) findViewById(R.id.next);
         firstpost = (Button) findViewById(R.id.firstpost);
         gridview = (GridView) findViewById(R.id.gridview02);
         selectedpic = (ImageView) findViewById(R.id.selectedpic);
         confirmedtext = (TextView) findViewById(R.id.confirmedtext);
-        confirmedpic = (ImageView) findViewById(R.id.confirmedpic);
+        foodconfirmedpic = (ImageView) findViewById(R.id.foodconfirmedpic);
+        moodconfirmedpic = (ImageView) findViewById(R.id.moodconfirmedpic);
+        extras = (TextView) findViewById(R.id.extras);
         finalcancel = (Button) findViewById(R.id.finalcancel);
         confirm = (Button) findViewById(R.id.confirm);
         
+        picselectscreen.setVisibility(8);
 		typescreen.setVisibility(8);
 		confirmscreen.setVisibility(8);
-        //TODO
+		
+		healthScale.setKeyProgressIncrement(1);
+		healthiness = -1;
+        
         moodAdapter = new MoodAdapter(this);
 		gridview.setAdapter(moodAdapter);
+        
+		preview = new Preview(this);
+		previewholder.addView(preview);
+        
+        click.setOnClickListener(new View.OnClickListener() {
+        	public void onClick(View v) {
+        		preview.camera.takePicture(shutterCallback, rawCallback, jpegCallback);
+        		typescreen.setVisibility(0);
+        		picTakingScreen.setVisibility(8);
+        	}
+        });
 		
-        //TODO
 		morebutton.setOnClickListener(new View.OnClickListener() {
         	public void onClick(View v) {
         		moodAdapter.populate();
@@ -88,62 +142,114 @@ public class PostActivity extends Activity{
         
     	firstpost.setOnClickListener(new View.OnClickListener() {
         	public void onClick(View v) {
-        		
         		if(selectedpic.getDrawable()!=null) {
-	        		confirmedpic.setImageDrawable(selectedpic.getDrawable());
+	        		moodconfirmedpic.setImageDrawable(yourPicture.getDrawable());
+	        		foodconfirmedpic.setImageDrawable(selectedpic.getDrawable());
 	        		selectedpic.setImageResource(-1);
-	        		typescreen.setVisibility(0);
+	        		confirmscreen.setVisibility(0);
 	        		picselectscreen.setVisibility(4);
-	        		entry.setText("");
+	        		String str = new String();
+	        		if (didIt)
+	        			str = "I did this and rated it a " + healthiness + ".";
+	        		else
+	        			str = "I didn't do this and rated that a " + healthiness + ".";
+	        		extras.setText(str);
         		}
         		else {
         			Toast.makeText(PostActivity.this, "A picture must be selected in order to post.", Toast.LENGTH_LONG).show();
         		}
         	}
         });
-    	
-    	//TODO
+    	    	
 	    gridview.setOnItemClickListener(new OnItemClickListener() {
 	        public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-	        	
-	        	
 	        	selectedpic.setImageDrawable( ( (ImageView) v).getDrawable() );
-	        	Log.e("POST", selectedpic.getDrawable().toString());
 	        	selectedPosition = position;
 	        }
 	    });
 
+	    healthScale.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+			
+			@Override
+			public void onStopTrackingTouch(SeekBar seekBar) {
+			}
+			
+			@Override
+			public void onStartTrackingTouch(SeekBar seekBar) {
+				healthinessText.setText("Healthiness: 1");
+				healthiness = 1;
+			}
+			
+			@Override
+			public void onProgressChanged(SeekBar seekBar, int progress,
+					boolean fromUser) {
+				healthiness = progress + 1;
+				healthinessText.setText("Healthiness: " + healthiness);
+			}
+		});
+	    
         poster.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-            	posttext = entry.getText().toString();
-            	confirmedtext.setText(posttext);
-            	entry.setText("");
-            	typescreen.setVisibility(4);
-        		confirmscreen.setVisibility(0);
+            	if (radiogroup.getCheckedRadioButtonId() != -1 && healthiness != -1) {
+            		posttext = entry.getText().toString();
+            		confirmedtext.setText(posttext);
+            		entry.setText("");
+            		typescreen.setVisibility(4);
+            		picselectscreen.setVisibility(0);
+            		didIt = didThisButton.isChecked();
+            	}
+            	else
+            		Toast.makeText(PostActivity.this, "You must select a Healthiness value and indicate whether or not you did the action in order to post.", Toast.LENGTH_LONG).show();
             }
         });
         
+        cancelfrompicselect.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+            	entry.setText("");
+                selectedpic.setImageResource(-1);
+                healthScale.setProgress(0);
+                healthiness = -1;
+                healthinessText.setText("");
+                radiogroup.clearCheck();
+                picselectscreen.setVisibility(4);
+                picTakingScreen.setVisibility(0);
+            }
+        });
+    
         cancel.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 entry.setText("");
                 selectedpic.setImageResource(-1);
+                healthScale.setProgress(0);
+                healthiness = -1;
+                healthinessText.setText("");
+                radiogroup.clearCheck();
                 typescreen.setVisibility(4);
-                picselectscreen.setVisibility(0);
+                picTakingScreen.setVisibility(0);
             }
         });
-    
+        
     	finalcancel.setOnClickListener(new View.OnClickListener() {
         	public void onClick(View v) {
-        		picselectscreen.setVisibility(0);
+        		entry.setText("");
+                selectedpic.setImageResource(-1);
+                healthScale.setProgress(0);
+                healthiness = -1;
+                healthinessText.setText("");
+                radiogroup.clearCheck();
+        		picTakingScreen.setVisibility(0);
         		confirmscreen.setVisibility(4);
-            	selectedpic.setImageResource(-1);
         	}
         });
     	
     	confirm.setOnClickListener(new View.OnClickListener() {
         	public void onClick(View v) {
         		dialog = ProgressDialog.show(PostActivity.this, "", "Posting. Please wait...", true);
-        		Aurora.addTask(new PostMoodStatusTask().execute());    
+        		Aurora.addTask(new PostMoodStatusTask().execute());      
+        		// TODO Make this also update whether or not done (from boolean 
+        		// didIt), taken picture (ImageView foodconfirmedpic) and 
+        		// healthiness value (int healthiness). If image can't be taken
+        		// from here we can talk about how to get it.
         			         	
         	}
         });
@@ -157,6 +263,44 @@ public class PostActivity extends Activity{
 	public void onConfigurationChanged(Configuration newConfig) {
 	    super.onConfigurationChanged(newConfig);
 	}
+	
+	ShutterCallback shutterCallback = new ShutterCallback() {
+		public void onShutter() {
+//			Log.d(TAG, "onShutter'd");
+		}
+	};
+
+	PictureCallback rawCallback = new PictureCallback() {
+		public void onPictureTaken(byte[] data, Camera camera) {
+//			Log.d(TAG, "onPictureTaken - raw");
+		}
+	};
+
+	PictureCallback jpegCallback = new PictureCallback() {
+		public void onPictureTaken(byte[] data, Camera camera) {
+/*			FileOutputStream outStream = null;
+			try {
+				outStream = new FileOutputStream(String.format(
+						"/sdcard/%d.jpg", System.currentTimeMillis()));
+				outStream.write(data);
+				outStream.close();
+				Log.d(TAG, "onPictureTaken - wrote bytes: " + data.length);
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+*/
+			BitmapFactory bitfac = new BitmapFactory();
+			Bitmap bmp = bitfac.decodeByteArray(data, 0, data.length);
+			int h = bmp.getHeight();
+			int w = bmp.getWidth();
+			Matrix mtx = new Matrix();
+			mtx.postRotate(90);
+			bmp = Bitmap.createBitmap(bmp, 0, 0, w, h, mtx, true);
+			yourPicture.setImageBitmap(bmp);
+//			} 
+		}
+	};
 	
 	//TODO
 	private class PostMoodStatusTask extends AsyncTask<Void, Void, String> {
@@ -204,10 +348,9 @@ public class PostActivity extends Activity{
 		@Override
 		public void onPostExecute(String result) {
 			dialog.dismiss();
-			picselectscreen.setVisibility(0);
+			picTakingScreen.setVisibility(0);
     		confirmscreen.setVisibility(4);
         	selectedpic.setImageResource(-1);
-        	moodAdapter.populate();
         	
         	if(result.equals("OK"))
         		Toast.makeText(PostActivity.this, "Mood posted successfully", Toast.LENGTH_SHORT).show();
@@ -220,7 +363,8 @@ public class PostActivity extends Activity{
 	public void myOnResume(){
 		typescreen.setVisibility(4);
 		confirmscreen.setVisibility(4);
-		picselectscreen.setVisibility(0);
+		picselectscreen.setVisibility(4);
+		picTakingScreen.setVisibility(0);
 		selectedpic.setImageResource(-1);
 		moodAdapter.populate();
 	}

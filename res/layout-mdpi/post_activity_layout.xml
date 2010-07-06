@@ -2,14 +2,74 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
+    
+<RelativeLayout
+	android:id="@+id/picTakingScreen"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent">
+	<TextView
+		android:id="@+id/takeapicturetext"
+		android:layout_height="wrap_content"
+		android:layout_width="wrap_content"
+		android:layout_alignParentTop="true"
+		android:layout_centerHorizontal="true"
+		android:text="Take a picture"/>
+	<Button
+		android:id="@+id/click"
+		android:layout_height="wrap_content"
+		android:layout_width="wrap_content"
+		android:layout_alignParentBottom="true"
+		android:layout_centerHorizontal="true"
+		android:text="Click"/>
+	<FrameLayout android:id="@+id/previewholder"
+		android:layout_weight="1" 
+		android:layout_below="@id/takeapicturetext"
+		android:layout_above="@id/click"
+		android:layout_marginTop="5dp"
+		android:layout_marginBottom="5dp"
+		android:layout_width="fill_parent"
+		android:layout_height="fill_parent"/>
+</RelativeLayout>
+
 <RelativeLayout 
 	android:id="@+id/typescreen"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
+    android:layout_height="fill_parent"
+    android:scrollbars="vertical">
+    <TextView
+    	android:id="@+id/yourPictureText"
+    	android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Your picture:"/>
+	<ImageView
+		android:id="@+id/yourPicture"
+		android:layout_width="80dp"
+		android:layout_height="80dp"
+		android:scaleType="centerCrop"
+		android:layout_below="@id/yourPictureText"
+		android:layout_alignLeft="@id/yourPictureText"
+		android:layout_marginLeft="8dp"
+		android:layout_marginTop="4dp"/>
+	<RadioGroup 
+    	android:id="@+id/radiogroup"
+    	android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_toRightOf="@id/yourPicture"
+		android:layout_marginLeft="50dp" 
+		android:orientation="vertical">
+		<RadioButton  
+			android:id="@+id/didThisButton"
+			android:checked="false"
+			android:text="I did this"/>
+		<RadioButton  
+			android:checked="false"
+			android:text="I didn't do this."/>
+	</RadioGroup>
     <TextView
         android:id="@+id/type_here_label"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@id/yourPicture"
         android:text="Type your post here:"/>
     <EditText
         android:id="@+id/entry"
@@ -19,20 +79,34 @@
         android:minLines="4"
         android:layout_below="@id/type_here_label"
         android:layout_marginTop="8dp"/>
+	<SeekBar
+		android:id="@+id/healthScale"
+		android:layout_height="wrap_content"
+		android:layout_width="240dp"
+		android:layout_below="@id/entry"
+		android:layout_marginTop="20dp"
+		android:layout_centerHorizontal="true"
+		android:max="6"/>
+	<TextView
+		android:id="@+id/healthinessText"
+		android:layout_height="wrap_content"
+		android:layout_width="wrap_content"
+		android:layout_below="@id/healthScale"
+		android:layout_marginTop="4dp"
+		android:layout_centerHorizontal="true"/>
     <Button
         android:id="@+id/next"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/entry"
-        android:layout_marginTop="8dip"
+        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:text="Next" />
     <Button
     	android:id="@+id/cancel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toLeftOf="@id/next"
-        android:layout_alignTop="@id/next"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
         android:text="Cancel" />
 </RelativeLayout>
 
@@ -41,20 +115,27 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">        
     <Button
-    	android:id="@+id/morebutton"
+    	android:id="@+id/cancelfrompicselect"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dip"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:text="More" />
+        android:text="Cancel" />
     <Button
         android:id="@+id/firstpost"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/morebutton"
-        android:layout_alignTop="@id/morebutton"
+        android:layout_toRightOf="@id/cancelfrompicselect"
+        android:layout_alignTop="@id/cancelfrompicselect"
         android:text="Post" />
+	<Button
+        android:id="@+id/morebutton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/firstpost"
+        android:layout_alignTop="@id/firstpost"
+        android:text="More" />
     <ImageView
     	android:id="@+id/selectedpic"
     	android:layout_width="60dp"
@@ -105,29 +186,43 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/confirmedtext"
         android:layout_marginTop="5dp"
-        android:text="Picture:"/>
+        android:text="Pictures:"/>
 	<ImageView
-        android:id="@+id/confirmedpic"
+        android:id="@+id/foodconfirmedpic"
         android:layout_below="@id/confirmpic"
         android:layout_marginLeft="25dp"
         android:layout_marginTop="5dp"
         android:layout_width="70dp"
         android:layout_height="70dp"
-        android:scaleType="centerCrop"/> 
+        android:scaleType="centerCrop"/>
+	<ImageView
+        android:id="@+id/moodconfirmedpic"
+        android:layout_toRightOf="@id/foodconfirmedpic"
+        android:layout_alignTop="@id/foodconfirmedpic"
+        android:layout_marginLeft="35dp"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:scaleType="centerCrop"/>
+	<TextView
+		android:id="@+id/extras"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_below="@id/foodconfirmedpic"
+		android:layout_marginTop="8dp"
+		android:layout_alignParentLeft="true"/>
 	<Button
         android:id="@+id/finalcancel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/confirmedpic"
-        android:layout_marginTop="5dp"
+        android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:text="Cancel"/>
     <Button
         android:id="@+id/confirm"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/finalcancel"
-        android:layout_alignTop="@id/finalcancel"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
         android:text="Confirm" />
 </RelativeLayout>
     
