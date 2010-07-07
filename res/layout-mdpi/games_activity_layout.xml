@@ -9,48 +9,48 @@
 	android:layout_width="fill_parent"
 	android:layout_height="fill_parent"> 	
   	<Button
-        android:id="@+id/playassociate"
+        android:id="@+id/playdidthey"
         android:layout_width="wrap_content"
         android:layout_height="40dp"
         android:layout_centerHorizontal="true"
-        android:text="Associate"/>
+        android:text="Didthey"/>
     <TextView
-    	android:id="@+id/associatedescription"
+    	android:id="@+id/didtheydescription"
     	android:layout_width="fill_parent"
     	android:layout_height="wrap_content"
-    	android:layout_below="@id/playassociate"
+    	android:layout_below="@id/playdidthey"
     	android:layout_marginTop="3dp"
     	android:text="Guess which status goes with the status image."/>
     <TextView
-    	android:id="@+id/associatewontext"
+    	android:id="@+id/didtheywontext"
     	android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_below="@id/associatedescription"
+        android:layout_below="@id/didtheydescription"
         android:layout_marginTop="5dp"
         android:text="Won"/>
     <TextView
-    	android:id="@+id/associateplayedtext"
+    	android:id="@+id/didtheyplayedtext"
     	android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/associatewontext"
-        android:layout_alignTop="@id/associatewontext"
+        android:layout_toRightOf="@id/didtheywontext"
+        android:layout_alignTop="@id/didtheywontext"
         android:layout_marginLeft="15dp"
         android:text="Played"/>
     <TextView
-    	android:id="@+id/associatewon"
+    	android:id="@+id/didtheywon"
     	android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_below="@id/associatewontext"
+        android:layout_below="@id/didtheywontext"
         android:layout_marginTop="5dp"/>
     <TextView
-    	android:id="@+id/associateplayed"
+    	android:id="@+id/didtheyplayed"
     	android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/associatewon"
-        android:layout_alignTop="@id/associatewon"
-        android:layout_alignLeft="@id/associateplayedtext"/>    
+        android:layout_toRightOf="@id/didtheywon"
+        android:layout_alignTop="@id/didtheywon"
+        android:layout_alignLeft="@id/didtheyplayedtext"/>    
  	<Button
         android:id="@+id/playwhodunnit"
         android:layout_width="wrap_content"
@@ -106,24 +106,31 @@
 		android:layout_width="wrap_content"
     	android:layout_height="wrap_content"/>
 	<ImageView
-    	android:id="@+id/associatepic" 
+    	android:id="@+id/didtheypic" 
 	    android:layout_width="60dp"
    		android:layout_height="60dp"
     	android:scaleType="centerCrop"
     	android:layout_below="@id/result"
     	android:layout_marginTop="4dp"/>
+	<TextView
+    	android:id="@+id/didtheyWho"
+    	android:layout_width="wrap_content"
+    	android:layout_height="wrap_content"
+    	android:layout_toRightOf="@id/didtheypic"
+    	android:layout_marginLeft="8dp"
+    	android:layout_alignTop="@id/didtheypic"/>
     <TextView
     	android:id="@+id/whodunnittext"
     	android:layout_width="wrap_content"
     	android:layout_height="wrap_content"
-    	android:layout_toRightOf="@id/associatepic"
+    	android:layout_toRightOf="@id/didtheypic"
     	android:layout_marginLeft="8dp"
-    	android:layout_alignTop="@id/associatepic"/>
+    	android:layout_alignTop="@id/didtheypic"/>
     <RadioGroup 
     	android:id="@+id/radiogroup"
     	android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_below="@id/associatepic" 
+		android:layout_below="@id/didtheypic" 
 		android:orientation="vertical">
 		<RadioButton  
 			android:id="@+id/option1"

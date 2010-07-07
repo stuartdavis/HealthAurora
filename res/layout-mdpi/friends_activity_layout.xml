@@ -82,11 +82,17 @@
   		android:maxHeight="90dp"
   		android:maxWidth="90dp"
   		android:scaleType="centerCrop"/>
+	<TextView
+        android:id="@+id/poster"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/postimage"
+        android:layout_marginTop="3dp"/>
     <TextView
         android:id="@+id/posted"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/postimage"
+        android:layout_below="@id/poster"
         android:layout_marginTop="3dp"
         android:text="Posted: "/>
     <TextView
@@ -96,24 +102,10 @@
         android:layout_alignTop="@id/posted"
         android:layout_toRightOf="@id/posted"/>     
 	<TextView
-        android:id="@+id/postedby"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/post"
-        android:layout_alignLeft="@id/posted"
-        android:layout_marginTop="3dp"
-        android:text="Posted By: "/>
-	<TextView
-        android:id="@+id/poster"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@id/postedby"
-        android:layout_toRightOf="@id/postedby"/>
-	<TextView
         android:id="@+id/at"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/postedby"
+        android:layout_below="@id/posted"
         android:layout_marginTop="3dp"
         android:text="At: "/>
 	<TextView

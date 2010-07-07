@@ -121,7 +121,8 @@ public class FriendsActivity extends Activity{
 	        	postimage.setImageDrawable(clicked.getDrawable());
 	        	//TODO
 	        	post.setText(recentMoodsAdapter.getStatusNote(position));
-	        	poster.setText(recentMoodsAdapter.getStatusUsername(position));
+	        	//TODO Determine if the poster did this or not and fix poster
+	        	poster.setText(recentMoodsAdapter.getStatusUsername(position) + " did/didn't do this");
 	        	time.setText(recentMoodsAdapter.getStatusTime(position));
 	        	selectedPosition = position;
 	        	postsviewscreen.setVisibility(4);
