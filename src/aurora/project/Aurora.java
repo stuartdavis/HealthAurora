@@ -121,7 +121,6 @@ public class Aurora extends TabActivity {
         signin.setOnClickListener(new View.OnClickListener() {
         	public void onClick(View v) {
         		//				check username and password from EditText's username and password
-        		dialog = ProgressDialog.show(Aurora.this, "", "Loading. Please wait...", true);
         		new GetUserIdTask().execute();	
         	}    		
         });
@@ -204,6 +203,12 @@ public class Aurora extends TabActivity {
 	}
 	
 	private class GetUserIdTask extends AsyncTask<Void, Void, Integer> {
+		@Override
+		protected void onPreExecute() {
+			dialog = ProgressDialog.show(Aurora.this, "", "Loading. Please wait...", true);
+			super.onPreExecute();
+		}
+		
 		@Override
 		protected Integer doInBackground(Void... params) {
 			String result = "";
