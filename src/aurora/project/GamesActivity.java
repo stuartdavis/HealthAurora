@@ -37,17 +37,18 @@ import android.widget.Toast;
 public class GamesActivity extends Activity{
 
 	private RelativeLayout gameselect;
-	private Button associateplay;
-	private TextView associatewon;
-	private TextView associateplayed;
+	private Button didtheyplay;
+	private TextView didtheywon;
+	private TextView didtheyplayed;
 	private Button whodunnitplay;
 	private TextView whodunnitwon;
 	private TextView whodunnitplayed;
 	
 	private RelativeLayout playing;
 	private TextView result;
-	private ImageView associatepic;
+	private ImageView didtheypic;
 	private TextView whodunnittext;
+	private TextView didtheyWho;
 	private RadioGroup radiogroup;
 	private RadioButton option1;
 	private RadioButton option2;
@@ -57,7 +58,7 @@ public class GamesActivity extends Activity{
 	private int correct;
 	private Button back;
 	private Button answer;
-	private Boolean playingassociate;
+	private Boolean playingdidthey;
 	
 	public void onCreate(Bundle savedInstanceState){
 		Log.e("log_tag", "STARTING GAMESACTIVITY ONCREATE");
@@ -65,17 +66,18 @@ public class GamesActivity extends Activity{
 		setContentView(R.layout.games_activity_layout);
 		
 		gameselect = (RelativeLayout) findViewById(R.id.gameselect);
-		associateplay = (Button) findViewById(R.id.playassociate);
-		associatewon = (TextView) findViewById(R.id.associatewon);
-		associateplayed = (TextView) findViewById(R.id.associateplayed);
+		didtheyplay = (Button) findViewById(R.id.playdidthey);
+		didtheywon = (TextView) findViewById(R.id.didtheywon);
+		didtheyplayed = (TextView) findViewById(R.id.didtheyplayed);
 		whodunnitplay = (Button) findViewById(R.id.playwhodunnit);
 		whodunnitwon = (TextView) findViewById(R.id.whodunnitwon);
 		whodunnitplayed = (TextView) findViewById(R.id.whodunnitplayed);
 		
 		playing = (RelativeLayout) findViewById(R.id.playing);
 		result = (TextView) findViewById(R.id.result);
-		associatepic = (ImageView) findViewById(R.id.associatepic);
+		didtheypic = (ImageView) findViewById(R.id.didtheypic);
 		whodunnittext = (TextView) findViewById(R.id.whodunnittext);
+		didtheyWho = (TextView) findViewById(R.id.didtheyWho);
 		radiogroup = (RadioGroup) findViewById(R.id.radiogroup);
 		option1 = (RadioButton) findViewById(R.id.option1);
 		option2 = (RadioButton) findViewById(R.id.option2);
@@ -91,27 +93,34 @@ public class GamesActivity extends Activity{
 		
 		playing.setVisibility(4);
 		
-    	associateplay.setOnClickListener(new View.OnClickListener() {
+    	didtheyplay.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-            	playingassociate=true;
+            	playingdidthey=true;
             	clearGameAnswers();
             	gameselect.setVisibility(4);
             	playing.setVisibility(0);
+            	option1.setText("They did");
+            	option2.setText("They didn't");
+            	option3.setVisibility(4);
+            	option4.setVisibility(4);
             	//TODO pic and correcttext
             	
             	correct = (int) Math.floor(Math.random()*4);
+            	// fix populate game answers
             	new PopulateGameAnswers().execute();      	
             }
         });
     	
     	whodunnitplay.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-            	playingassociate=false;
+            	playingdidthey=false;
             	clearGameAnswers();
             	gameselect.setVisibility(4);
             	playing.setVisibility(0);
-            	associatepic.setVisibility(0);
+            	didtheypic.setVisibility(0);
             	whodunnittext.setVisibility(0);
+            	option3.setVisibility(0);
+            	option4.setVisibility(0);
             	//TODO set whodunnit and correct text
             	
             	correct = (int) Math.floor(Math.random()*4);
@@ -132,8 +141,8 @@ public class GamesActivity extends Activity{
 					result.setText("I'm sorry, the correct answer was " + radiobuttonarr[correct].getText().toString() + ".");
 				radiogroup.clearCheck();
 				new UpdateScore().execute(isCorrect);
-				if (playingassociate){
-					associateplay.performClick();
+				if (playingdidthey){
+					didtheyplay.performClick();
 				}
 				else
 					whodunnitplay.performClick();
@@ -169,7 +178,7 @@ public class GamesActivity extends Activity{
 	}
 	
 	public void clearGameAnswers() {
-		associatepic.setImageDrawable(null);
+		didtheypic.setImageDrawable(null);
 		whodunnittext.setText("");
 		for(int i=0; i<=3; i++) {
 			radiobuttonarr[i].setText("");
@@ -177,8 +186,8 @@ public class GamesActivity extends Activity{
 	}
 	
 	public void clearGameScores() {
-		associateplayed.setText("");
-		associatewon.setText("");
+		didtheyplayed.setText("");
+		didtheywon.setText("");
 		whodunnitwon.setText("");
 		whodunnitplayed.setText("");
 	}
@@ -228,8 +237,8 @@ public class GamesActivity extends Activity{
     	protected void onPostExecute(JSONArray jArray){		
     		try{
     			JSONObject json_data = jArray.getJSONObject(0);
-				associatewon.setText(json_data.getString("num_correct"));
-				associateplayed.setText(json_data.getString("times_played"));
+				didtheywon.setText(json_data.getString("num_correct"));
+				didtheyplayed.setText(json_data.getString("times_played"));
 				
 				json_data = jArray.getJSONObject(1);
 				whodunnitwon.setText(json_data.getString("num_correct"));
@@ -250,7 +259,8 @@ public class GamesActivity extends Activity{
 			JSONArray jArray = null;
 			String url = "";
 			
-			if(playingassociate)
+			if(playingdidthey)
+				//TODO make didthey query
 				url = "http://auroralabs.cornellhci.org/android/getAssociateAnswers.php";
 			else
 				url = "http://auroralabs.cornellhci.org/android/getWhodunnitAnswers.php";
@@ -296,7 +306,7 @@ public class GamesActivity extends Activity{
     			String key = "";
     			String answer = "";
     			JSONObject json_data = jArray.getJSONObject(0);
-    			if(playingassociate)
+    			if(playingdidthey)
     				key = "notes";
     			else { //whodunnit
     				key = "username";
@@ -351,7 +361,7 @@ public class GamesActivity extends Activity{
     	@Override
         protected void onPostExecute(Bitmap bitmap){
     		try {
-    			associatepic.setImageBitmap(bitmap);
+    			didtheypic.setImageBitmap(bitmap);
     		} catch (Exception e) {
     			Log.e("DOWNLOAD MOODS IMAGES", "Error setting image "+e.toString());
     		}		
@@ -366,7 +376,7 @@ public class GamesActivity extends Activity{
 			InputStream is = null;
 			
 			int gameId = 1;
-			if(!playingassociate)
+			if(!playingdidthey)
 				gameId = 2;
 			
 			//send USER_ID

@@ -33,12 +33,12 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -47,9 +47,8 @@ import android.widget.AdapterView.OnItemClickListener;
 public class PostActivity extends Activity{
 	
 	private RelativeLayout picTakingScreen;
-	private FrameLayout previewholder;
-	private Button click;
-	private RelativeLayout typescreen;
+	private RelativeLayout previewholder;
+	private ScrollView scrollView;
 	private ImageView yourPicture;
 	private String posttext;
 	private RadioGroup radiogroup;
@@ -81,6 +80,7 @@ public class PostActivity extends Activity{
 	
 	Camera camera;
 	Preview preview;
+	boolean previewMade = false;
 	private static final String TAG = "CameraDemo";
 	
 	public void onCreate(Bundle savedInstanceState){
@@ -90,10 +90,8 @@ public class PostActivity extends Activity{
 		Log.e("log_tag", "STARTING POSTACTIVITY ONCREATE");
 
 		picTakingScreen = (RelativeLayout) findViewById(R.id.picTakingScreen);
-		previewholder = (FrameLayout) findViewById(R.id.previewholder);
-		click = (Button) findViewById(R.id.click);
-		typescreen = (RelativeLayout) findViewById(R.id.typescreen);
-		// TODO Fix typescreen turn problem
+		previewholder = (RelativeLayout) findViewById(R.id.previewholder);
+		scrollView = (ScrollView) findViewById(R.id.scrollView);
 		yourPicture = (ImageView) findViewById(R.id.yourPicture);
 		picselectscreen = (RelativeLayout) findViewById(R.id.picselectscreen);
 		cancelfrompicselect = (Button) findViewById(R.id.cancelfrompicselect);
@@ -117,7 +115,7 @@ public class PostActivity extends Activity{
         confirm = (Button) findViewById(R.id.confirm);
         
         picselectscreen.setVisibility(8);
-		typescreen.setVisibility(8);
+		scrollView.setVisibility(8);
 		confirmscreen.setVisibility(8);
 		
 		healthScale.setKeyProgressIncrement(1);
@@ -129,11 +127,12 @@ public class PostActivity extends Activity{
 		preview = new Preview(this);
 		previewholder.addView(preview);
         
-        click.setOnClickListener(new View.OnClickListener() {
+        preview.setOnClickListener(new View.OnClickListener() {
         	public void onClick(View v) {
         		preview.camera.takePicture(shutterCallback, rawCallback, jpegCallback);
-        		typescreen.setVisibility(0);
+        		scrollView.setVisibility(0);
         		picTakingScreen.setVisibility(8);
+        		previewMade = true;
         	}
         });
 		
@@ -198,7 +197,8 @@ public class PostActivity extends Activity{
             		posttext = entry.getText().toString();
             		confirmedtext.setText(posttext);
             		entry.setText("");
-            		typescreen.setVisibility(4);
+            		scrollView.setVisibility(4);
+            		preview.restart();
             		picselectscreen.setVisibility(0);
             		didIt = didThisButton.isChecked();
             	}
@@ -228,8 +228,9 @@ public class PostActivity extends Activity{
                 healthiness = -1;
                 healthinessText.setText("");
                 radiogroup.clearCheck();
-                typescreen.setVisibility(4);
+                scrollView.setVisibility(4);
                 picTakingScreen.setVisibility(0);
+                preview.restart();
             }
         });
         
@@ -267,6 +268,15 @@ public class PostActivity extends Activity{
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
 	    super.onConfigurationChanged(newConfig);
+	    if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+	    	preview.setClickable(false);
+	    	if (picTakingScreen.getVisibility() == 0 && Aurora.signedIn) {
+	    		Toast.makeText(PostActivity.this, "Phone must be vertical to take picture.", Toast.LENGTH_LONG).show();
+	    	}
+	    }
+	    else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+	    	preview.setClickable(true);
+	    }
 	}
 	
 	ShutterCallback shutterCallback = new ShutterCallback() {
@@ -381,12 +391,19 @@ public class PostActivity extends Activity{
     }
 	
 	public void myOnResume(){
-		typescreen.setVisibility(4);
+		scrollView.setVisibility(4);
 		confirmscreen.setVisibility(4);
 		picselectscreen.setVisibility(4);
 		picTakingScreen.setVisibility(0);
 		selectedpic.setImageResource(-1);
 		emotionAdapter.notifyDataSetChanged();
+		if (previewMade)
+			preview.restart();
+		if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+			preview.setClickable(false);
+			Toast.makeText(PostActivity.this, "Phone must be vertical to take picture.", Toast.LENGTH_LONG).show();
+		}
+			
 	}
 	
 	public void onPause() {
