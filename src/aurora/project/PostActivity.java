@@ -314,7 +314,6 @@ public class PostActivity extends Activity{
 			mtx.postRotate(90);
 			bmp = Bitmap.createBitmap(bmp, 0, 0, w, h, mtx, true);
 			yourPicture.postInvalidate();
-			yourPicture.setDrawingCacheEnabled(true);
 			yourPicture.setImageBitmap(bmp);
 			
 			/*ByteArrayOutputStream baos = new ByteArrayOutputStream();  
