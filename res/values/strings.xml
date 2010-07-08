@@ -3,4 +3,28 @@
     <string name="hello">Hello World, Aurora!</string>
     <string name="app_name">Aurora</string>
     <string name="option1text">Hope this works</string>
+<string-array name="emotions">
+<item>R.drawable.afraid_1</item>
+<item>R.drawable.afraid_2</item>
+<item>R.drawable.afraid_3</item>
+<item>R.drawable.angry_1</item>
+<item>R.drawable.angry_2</item>
+<item>R.drawable.angry_3</item>
+<item>R.drawable.calm_1</item>
+<item>R.drawable.calm_2</item>
+<item>R.drawable.calm_3</item>
+<item>R.drawable.delighted_1</item>
+<item>R.drawable.excited_1</item>
+<item>R.drawable.frustrated_1</item>
+<item>R.drawable.glad_1</item>
+<item>R.drawable.gloomy_1</item>
+<item>R.drawable.happy_1</item>
+<item>R.drawable.miserable_1</item>
+<item>R.drawable.sad_1</item>
+<item>R.drawable.satisfied_1</item>
+<item>R.drawable.serene_1</item>
+<item>R.drawable.sleepy_1</item>
+<item>R.drawable.tense_1</item>
+<item>R.drawable.tired_1</item>
+</string-array>
 </resources>

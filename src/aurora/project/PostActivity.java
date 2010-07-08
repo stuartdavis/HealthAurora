@@ -1,18 +1,21 @@
 package aurora.project;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -71,9 +74,10 @@ public class PostActivity extends Activity{
 	private TextView extras;
 	private Button finalcancel;
 	private Button confirm;
-	private MoodAdapter moodAdapter;
+	private EmotionAdapter emotionAdapter;
 	private int selectedPosition;
 	private ProgressDialog dialog;
+	private File file;
 	
 	Camera camera;
 	Preview preview;
@@ -119,8 +123,8 @@ public class PostActivity extends Activity{
 		healthScale.setKeyProgressIncrement(1);
 		healthiness = -1;
         
-        moodAdapter = new MoodAdapter(this);
-		gridview.setAdapter(moodAdapter);
+        emotionAdapter = new EmotionAdapter(this);
+		gridview.setAdapter(emotionAdapter);
         
 		preview = new Preview(this);
 		previewholder.addView(preview);
@@ -135,7 +139,7 @@ public class PostActivity extends Activity{
 		
 		morebutton.setOnClickListener(new View.OnClickListener() {
         	public void onClick(View v) {
-        		moodAdapter.populate();
+        		emotionAdapter.notifyDataSetChanged();
         		selectedpic.setImageResource(-1);
         	}
         });
@@ -246,6 +250,7 @@ public class PostActivity extends Activity{
         	public void onClick(View v) {
         		dialog = ProgressDialog.show(PostActivity.this, "", "Posting. Please wait...", true);
         		Aurora.addTask(new PostMoodStatusTask().execute());      
+        		
         		// TODO Make this also update whether or not done (from boolean 
         		// didIt), taken picture (ImageView foodconfirmedpic) and 
         		// healthiness value (int healthiness). If image can't be taken
@@ -278,10 +283,11 @@ public class PostActivity extends Activity{
 
 	PictureCallback jpegCallback = new PictureCallback() {
 		public void onPictureTaken(byte[] data, Camera camera) {
-/*			FileOutputStream outStream = null;
+			//write data to a temp file	
 			try {
-				outStream = new FileOutputStream(String.format(
-						"/sdcard/%d.jpg", System.currentTimeMillis()));
+				file = File.createTempFile(String.valueOf(System.currentTimeMillis()), ".jpg");
+				FileOutputStream outStream = null;
+				outStream = new FileOutputStream(file.getPath());
 				outStream.write(data);
 				outStream.close();
 				Log.d(TAG, "onPictureTaken - wrote bytes: " + data.length);
@@ -289,40 +295,52 @@ public class PostActivity extends Activity{
 				e.printStackTrace();
 			} catch (IOException e) {
 				e.printStackTrace();
-*/
-			BitmapFactory bitfac = new BitmapFactory();
-			Bitmap bmp = bitfac.decodeByteArray(data, 0, data.length);
+			}
+			
+			Bitmap bmp = BitmapFactory.decodeByteArray(data, 0, data.length);
 			int h = bmp.getHeight();
 			int w = bmp.getWidth();
 			Matrix mtx = new Matrix();
 			mtx.postRotate(90);
 			bmp = Bitmap.createBitmap(bmp, 0, 0, w, h, mtx, true);
+			yourPicture.postInvalidate();
+			yourPicture.setDrawingCacheEnabled(true);
 			yourPicture.setImageBitmap(bmp);
-//			} 
+			
+			/*ByteArrayOutputStream baos = new ByteArrayOutputStream();  
+			yourPicture.getDrawingCache().compress(Bitmap.CompressFormat.JPEG, 100, baos);
+			byte[] bArray = baos.toByteArray();*/
+			//create temp file
+			
+			
 		}
 	};
 	
-	//TODO
 	private class PostMoodStatusTask extends AsyncTask<Void, Void, String> {
 		@Override
 		protected String doInBackground(Void... params) {
 			String result="";
-			//the mood status to add
-			ArrayList<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-			nameValuePairs.add(new BasicNameValuePair("user_id", String.valueOf(Aurora.USER_ID)));
-			nameValuePairs.add(new BasicNameValuePair("photo_id", String.valueOf(moodAdapter.getImageId(selectedPosition))));
-			nameValuePairs.add(new BasicNameValuePair("notes", confirmedtext.getText().toString()));
 			InputStream is = null;
 			
-			//http post
+			MultipartEntity entity = new MultipartEntity();
 			try{
-			        HttpClient httpclient = new DefaultHttpClient();
-			        HttpPost httppost = new HttpPost("http://auroralabs.cornellhci.org/android/postMoodStatus.php");
-			        httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-			        HttpResponse response = httpclient.execute(httppost);
-			        
-			        HttpEntity entity = response.getEntity();
-			        is = entity.getContent();
+				//the image and other information to post	
+				entity.addPart("user_id", new StringBody(String.valueOf(Aurora.USER_ID)));
+				entity.addPart("healthiness", new StringBody(String.valueOf(healthiness)));
+				if(didIt)
+					entity.addPart("did_it", new StringBody("1"));
+				else
+					entity.addPart("did_it", new StringBody("0"));
+				entity.addPart("notes", new StringBody(confirmedtext.getText().toString()));
+				entity.addPart("image", new FileBody(file));
+
+				//http post
+				HttpClient httpclient = new DefaultHttpClient();
+				HttpPost httppost = new HttpPost("http://auroralabs.cornellhci.org/android/postImage.php");
+				httppost.setEntity(entity);
+				HttpResponse response = httpclient.execute(httppost);
+
+				is = response.getEntity().getContent();
 			}catch(Exception e){
 			        Log.e("log_tag", "Error in http connection "+e.toString());
 			}
@@ -334,10 +352,12 @@ public class PostActivity extends Activity{
 			        String line = null;
 			        while ((line = reader.readLine()) != null) {
 			                sb.append(line);
+			                Log.d("POST IMAGE", line);
 			        }
 			        is.close();
 			 
 			        result=sb.toString();
+			        
 			}catch(Exception e){
 			        Log.e("log_tag", "Error converting result "+e.toString());
 			}
@@ -366,7 +386,7 @@ public class PostActivity extends Activity{
 		picselectscreen.setVisibility(4);
 		picTakingScreen.setVisibility(0);
 		selectedpic.setImageResource(-1);
-		moodAdapter.populate();
+		emotionAdapter.notifyDataSetChanged();
 	}
 	
 	public void onPause() {
