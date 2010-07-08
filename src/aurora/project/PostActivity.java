@@ -46,7 +46,6 @@ public class PostActivity extends Activity{
 	private RelativeLayout picTakingScreen;
 	private RelativeLayout previewholder;
 	private ScrollView scrollView;
-	private RelativeLayout typescreen;
 	private ImageView yourPicture;
 	private String posttext;
 	private RadioGroup radiogroup;
@@ -89,7 +88,6 @@ public class PostActivity extends Activity{
 		picTakingScreen = (RelativeLayout) findViewById(R.id.picTakingScreen);
 		previewholder = (RelativeLayout) findViewById(R.id.previewholder);
 		scrollView = (ScrollView) findViewById(R.id.scrollView);
-		typescreen = (RelativeLayout) findViewById(R.id.typescreen);
 		yourPicture = (ImageView) findViewById(R.id.yourPicture);
 		picselectscreen = (RelativeLayout) findViewById(R.id.picselectscreen);
 		cancelfrompicselect = (Button) findViewById(R.id.cancelfrompicselect);
@@ -267,7 +265,7 @@ public class PostActivity extends Activity{
 	    super.onConfigurationChanged(newConfig);
 	    if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
 	    	preview.setClickable(false);
-	    	if (picTakingScreen.getVisibility() == 0) {
+	    	if (picTakingScreen.getVisibility() == 0 && Aurora.signedIn) {
 	    		Toast.makeText(PostActivity.this, "Phone must be vertical to take picture.", Toast.LENGTH_LONG).show();
 	    	}
 	    }
@@ -309,6 +307,7 @@ public class PostActivity extends Activity{
 			Matrix mtx = new Matrix();
 			mtx.postRotate(90);
 			bmp = Bitmap.createBitmap(bmp, 0, 0, w, h, mtx, true);
+			yourPicture.postInvalidate();
 			yourPicture.setImageBitmap(bmp);
 //			} 
 		}

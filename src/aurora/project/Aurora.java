@@ -44,6 +44,7 @@ public class Aurora extends TabActivity {
 	public static int USER_ID;
 	public static int GROUP_ID;
 	public static String USERNAME;
+	public static boolean signedIn;
 	private TabHost tabHost;
 	private RelativeLayout signinscreen; 
 	private ImageView auroraLogo;
@@ -88,6 +89,8 @@ public class Aurora extends TabActivity {
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) 
         	auroraLogo.setVisibility(4);
         tabHost.setVisibility(4);
+        
+        signedIn = false;
         
         try{
         username.setText(prefs.getString("username", ""));
@@ -269,7 +272,8 @@ public class Aurora extends TabActivity {
     			Aurora.USERNAME = username.getText().toString();
     			try{				
     				tabHost.setVisibility(0);
-    				signinscreen.setVisibility(8);  				
+    				signinscreen.setVisibility(8);
+    				signedIn = true;
     			} catch(Exception e) {
     				Log.e("AURORA", "ERROR SAVING PREFERENCES");
     			}
