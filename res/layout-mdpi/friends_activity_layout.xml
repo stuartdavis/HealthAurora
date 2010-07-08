@@ -26,6 +26,14 @@
     	android:stretchMode="columnWidth"
     	android:layout_above="@id/viewfriends"
     	android:gravity="center"/>
+    	<TextView
+    	android:id="@+id/noPosts"
+    	android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+    	android:layout_centerInParent="true"
+    	android:textSize="20dp"
+    	android:gravity="center_horizontal"
+    	android:text="There are no posts. You should try posting."/>
 </RelativeLayout>
 
 <RelativeLayout

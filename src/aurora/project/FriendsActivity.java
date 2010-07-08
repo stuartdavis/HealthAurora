@@ -37,9 +37,10 @@ import android.widget.AdapterView.OnItemClickListener;
 public class FriendsActivity extends Activity{
 	
 	private RelativeLayout postsviewscreen;
-	private GridView gridview;
+	private static GridView gridview;
+	private static TextView noPosts;
 	private RecentMoodsAdapter recentMoodsAdapter;
-	private Button viewfriends;
+	private static Button viewfriends;
 	private RelativeLayout friendslistscreen;
 	private ListView friendslist;
 	private Button viewrecentposts;
@@ -74,6 +75,7 @@ public class FriendsActivity extends Activity{
 	    
 	    postsviewscreen = (RelativeLayout) findViewById(R.id.postsviewscreen);
 	    gridview = (GridView) findViewById(R.id.gridview);
+	    noPosts = (TextView) findViewById(R.id.noPosts);
 	    viewfriends = (Button) findViewById(R.id.viewfriends);
 	    friendslistscreen = (RelativeLayout) findViewById(R.id.friendslistscreen);
 	    friendslist = (ListView) findViewById(R.id.friendslist);
@@ -165,7 +167,6 @@ public class FriendsActivity extends Activity{
 	        public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
 	        	ImageView clicked = (ImageView) v;
 	        	postimage.setImageDrawable(clicked.getDrawable());
-	        	//TODO
 	        	post.setText(friendsadapter.getStatusNote(position));
 	        	poster.setText(friendsadapter.getStatusUsername(position));
 	        	time.setText(friendsadapter.getStatusTime(position));
@@ -200,7 +201,6 @@ public class FriendsActivity extends Activity{
             }
         });
     	
-    	//TODO
     	sendcomment.setOnClickListener(new View.OnClickListener() {
     		public void onClick(View v) {
     			if(!comment.getText().toString().trim().equals("")) { //a valid comment
@@ -234,18 +234,25 @@ public class FriendsActivity extends Activity{
 	    friendslistscreen.setVisibility(4);
 	    friendspostsscreen.setVisibility(4);
 	    postsviewscreen.setVisibility(0);
+	    noPosts.setVisibility(4);
 	    
 	    recentMoodsAdapter.populate(0);
 	}
 	
-	//TODO
+	public static void noRecentPosts() {
+		//TODO show textview encouraging you to post a mood status
+		//be sure to hide the textview in myOnResume()
+		noPosts.setVisibility(0);
+		gridview.setVisibility(4);
+		viewfriends.setVisibility(4);
+	}
+	
 	@Override
 	public void onPause() {
 		super.onPause();
 		Aurora.killTasks();
 	}
 	
-	//TODO
 	private class PopulateFriendsList extends AsyncTask<Void, Void, JSONArray> {
 		@Override
 		protected JSONArray doInBackground(Void... params) {

@@ -189,13 +189,13 @@ public class RecentMoodsAdapter extends BaseAdapter {
 		@Override
     	protected void onPostExecute(String[] imagePaths){		
     		
-    		try{
+			if(imagePaths[0] == null) {
+    			FriendsActivity.noRecentPosts();
+    		} else {
     			for(int i=0; i<imagePaths.length && imagePaths[i] != null; i++) {
                 tasks.add(new DownloadMoodImages().execute("http://auroralabs.cornellhci.org/img/" + imagePaths[i], i));
     			}
-            } catch(Exception e) {
-                Log.e("POPULATE RECENT MOODS", "Error in downloading image "+e.toString());            
-            }
+    		}
     		
     	}
     }

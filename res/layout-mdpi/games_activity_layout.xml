@@ -96,6 +96,15 @@
 		android:layout_alignLeft="@id/whodunnitplayedtext"/>
 </RelativeLayout>
 
+<TextView
+    android:id="@+id/notEnough"
+   	android:layout_width="wrap_content"
+	android:layout_height="wrap_content"
+   	android:layout_centerInParent="true"
+   	android:textSize="20dp"
+   	android:gravity="center_horizontal"
+   	android:text="There aren't enough posts to play the games. Please wait for your friends to make more posts."/>
+
 <RelativeLayout
 	android:id="@+id/playing"
 	android:layout_width="fill_parent"

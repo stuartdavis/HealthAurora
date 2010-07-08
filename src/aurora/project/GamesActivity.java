@@ -18,6 +18,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -44,6 +45,8 @@ public class GamesActivity extends Activity{
 	private TextView whodunnitwon;
 	private TextView whodunnitplayed;
 	
+	private TextView notEnough;
+	
 	private RelativeLayout playing;
 	private TextView result;
 	private ImageView didtheypic;
@@ -59,6 +62,7 @@ public class GamesActivity extends Activity{
 	private Button back;
 	private Button answer;
 	private Boolean playingdidthey;
+	private ProgressDialog dialog;
 	
 	public void onCreate(Bundle savedInstanceState){
 		Log.e("log_tag", "STARTING GAMESACTIVITY ONCREATE");
@@ -72,6 +76,8 @@ public class GamesActivity extends Activity{
 		whodunnitplay = (Button) findViewById(R.id.playwhodunnit);
 		whodunnitwon = (TextView) findViewById(R.id.whodunnitwon);
 		whodunnitplayed = (TextView) findViewById(R.id.whodunnitplayed);
+		
+		notEnough = (TextView) findViewById(R.id.notEnough);
 		
 		playing = (RelativeLayout) findViewById(R.id.playing);
 		result = (TextView) findViewById(R.id.result);
@@ -169,11 +175,11 @@ public class GamesActivity extends Activity{
 	
 	public void myOnResume(){
 		playing.setVisibility(4);
-		gameselect.setVisibility(0);
-		
+		gameselect.setVisibility(4);
+		notEnough.setVisibility(4);
+		clearGameScores();
 		if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
 			Toast.makeText(GamesActivity.this, "The games only function properly while the phone is vertical.", Toast.LENGTH_LONG).show();
-		clearGameScores();
 		new PopulateGameScores().execute();
 	}
 	
@@ -191,7 +197,24 @@ public class GamesActivity extends Activity{
 		whodunnitwon.setText("");
 		whodunnitplayed.setText("");
 	}
+	
+	public void lockGames() {
+		gameselect.setVisibility(4);
+		notEnough.setVisibility(0);
+	}
+	
+	//TODO fix for didthey
+	/**
+	 * If there are enough posts to unlock games, the tab is displayed with the user's scores.
+	 * Otherwise hides the tab and prompts the user to wait until other people have made more posts.
+	 */
 	private class PopulateGameScores extends AsyncTask<Void, Void, JSONArray> {
+		@Override
+		protected void onPreExecute() {
+			dialog = ProgressDialog.show(GamesActivity.this, "", "Loading. Please wait...", true);
+			super.onPreExecute();
+		}
+		
 		@Override
 		protected JSONArray doInBackground(Void... params) {
 			String result = "";
@@ -225,7 +248,8 @@ public class GamesActivity extends Activity{
 			        }
 			        is.close();
 			        
-			        jArray = new JSONArray(result);
+			        if(!result.equals("locked"));
+			          jArray = new JSONArray(result);
 			}catch(Exception e){
 			        Log.e("POPULATE GAME SCORES", "Error converting result "+e.toString());
 			}
@@ -234,20 +258,29 @@ public class GamesActivity extends Activity{
 		}
 		
 		@Override
-    	protected void onPostExecute(JSONArray jArray){		
-    		try{
-    			JSONObject json_data = jArray.getJSONObject(0);
-				didtheywon.setText(json_data.getString("num_correct"));
-				didtheyplayed.setText(json_data.getString("times_played"));
+    	protected void onPostExecute(JSONArray jArray){
+			dialog.dismiss();
+			if(jArray == null) {
+				lockGames();
+			} else {
+				gameselect.setVisibility(0);
 				
-				json_data = jArray.getJSONObject(1);
-				whodunnitwon.setText(json_data.getString("num_correct"));
-				whodunnitplayed.setText(json_data.getString("times_played"));
-				
-            } catch(Exception e) {
-                Log.e("POPULATE GAME SCORES", "Error setting scores "+e.toString());
-                
-            }
+				try{
+					JSONObject json_data = jArray.getJSONObject(0);
+					didtheywon.setText(json_data.getString("num_correct"));
+					didtheywon.setText(json_data.getString("times_played"));
+
+					json_data = jArray.getJSONObject(1);
+					whodunnitwon.setText(json_data.getString("num_correct"));
+					whodunnitplayed.setText(json_data.getString("times_played"));
+
+				} catch(Exception e) {
+					Log.e("POPULATE GAME SCORES", "Error setting scores "+e.toString());
+
+				}
+				if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
+					Toast.makeText(GamesActivity.this, "The games only function properly while the phone is vertical.", Toast.LENGTH_LONG).show();
+			}
     	}
     }
 	
